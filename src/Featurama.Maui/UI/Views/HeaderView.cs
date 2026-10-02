@@ -5,7 +5,7 @@ namespace Featurama.Maui.UI.Views;
 
 internal sealed class HeaderView : ContentView
 {
-    public HeaderView(FeaturamaTheme theme, FeaturamaStrings strings, Action? onClose, Action onAdd)
+    public HeaderView(FeaturamaTheme theme, FeaturamaStrings strings, Func<Task>? onClose, Func<Task> onAdd, Action<Exception> onError)
     {
         var grid = new Grid
         {
@@ -29,7 +29,14 @@ internal sealed class HeaderView : ContentView
                 WidthRequest = 40,
                 HeightRequest = 40,
             };
-            closeBtn.Clicked += (_, _) => onClose();
+            SemanticProperties.SetDescription(closeBtn, strings.Close);
+            closeBtn.Clicked += async (_, _) =>
+            {
+                closeBtn.IsEnabled = false;
+                try { await onClose(); }
+                catch (Exception ex) { onError(ex); }
+                finally { closeBtn.IsEnabled = true; }
+            };
             grid.Add(closeBtn, 0);
         }
 
@@ -53,7 +60,14 @@ internal sealed class HeaderView : ContentView
             WidthRequest = 40,
             HeightRequest = 40,
         };
-        addBtn.Clicked += (_, _) => onAdd();
+        SemanticProperties.SetDescription(addBtn, strings.Submit);
+        addBtn.Clicked += async (_, _) =>
+        {
+            addBtn.IsEnabled = false;
+            try { await onAdd(); }
+            catch (Exception ex) { onError(ex); }
+            finally { addBtn.IsEnabled = true; }
+        };
         grid.Add(addBtn, 2);
 
         Content = grid;

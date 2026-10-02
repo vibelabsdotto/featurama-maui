@@ -14,12 +14,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton(options);
 
-        services.AddHttpClient<FeaturamaClient>((sp, httpClient) =>
-        {
-            var opts = sp.GetRequiredService<FeaturamaOptions>();
-            httpClient.DefaultRequestHeaders.Add("X-Api-Key", opts.ApiKey);
-            httpClient.Timeout = opts.Timeout;
-        });
+        services.AddHttpClient<FeaturamaClient>(client => client.Timeout = System.Threading.Timeout.InfiniteTimeSpan)
+            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 
         return services;
     }

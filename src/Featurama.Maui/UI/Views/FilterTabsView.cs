@@ -17,6 +17,7 @@ internal sealed class FilterTabsView : ContentView
         _filters = new List<(string, string, Button)>
         {
             ("new", strings.FilterNew, null!),
+            ("planned", strings.FilterPlanned, null!),
             ("in_progress", strings.FilterInProgress, null!),
             ("done", strings.FilterDone, null!),
         };
@@ -77,6 +78,12 @@ internal sealed class FilterTabsView : ContentView
             FilterChanged?.Invoke(this, key);
         };
         return btn;
+    }
+
+    public void SetFilter(string filter)
+    {
+        _activeFilter = filter;
+        UpdateVisuals();
     }
 
     private void UpdateVisuals()

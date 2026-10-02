@@ -6,40 +6,47 @@ namespace FeaturamaTester.ViewModels;
 public partial class SettingsViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string _apiKey = Config.ApiKey;
+    private string _apiKey = "";
 
     [ObservableProperty]
-    private string _baseUrl = Config.BaseUrl;
+    private string _baseUrl = "";
 
     [ObservableProperty]
-    private string _userId = Config.UserId;
+    private string _userId = "";
 
     [ObservableProperty]
-    private string _statusMessage = string.Empty;
+    private string _statusMessage = "";
+
+    public async Task LoadAsync()
+    {
+        try
+        {
+            await Config.InitializeAsync();
+            ApiKey = Config.ApiKey;
+            BaseUrl = Config.BaseUrl;
+            UserId = Config.UserId;
+            StatusMessage = Config.StatusMessage;
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Could not load settings: {ex.Message}";
+        }
+    }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
-        if (string.IsNullOrWhiteSpace(ApiKey))
+        try
         {
-            StatusMessage = "API key cannot be empty.";
-            return;
+            await Config.ApplyAsync(ApiKey, BaseUrl);
+            ApiKey = Config.ApiKey;
+            BaseUrl = Config.BaseUrl;
+            UserId = Config.UserId;
+            StatusMessage = Config.StatusMessage;
         }
-
-        if (string.IsNullOrWhiteSpace(BaseUrl))
+        catch (Exception ex)
         {
-            StatusMessage = "Base URL cannot be empty.";
-            return;
+            StatusMessage = $"Settings were not applied: {ex.Message}";
         }
-
-        Config.ApiKey = ApiKey.Trim();
-        Config.BaseUrl = BaseUrl.Trim();
-
-        StatusMessage = "Settings saved. Restart the app for changes to take effect.";
-
-        await Shell.Current.DisplayAlert(
-            "Settings Saved",
-            "Configuration updated. Please restart the app to apply changes to the SDK client.",
-            "OK");
     }
 }

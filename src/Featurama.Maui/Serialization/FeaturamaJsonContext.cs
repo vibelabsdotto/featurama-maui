@@ -13,4 +13,8 @@ namespace Featurama.Maui.Serialization;
 [JsonSerializable(typeof(VoteRequestBody))]
 [JsonSerializable(typeof(ProjectConfig))]
 [JsonSerializable(typeof(BrandingConfig))]
+[JsonSerializable(typeof(Comment))]
+[JsonSerializable(typeof(List<Comment>))]
+[JsonSerializable(typeof(AddCommentInput))]
+[JsonSerializable(typeof(Models.DeviceInfo))]
 internal partial class FeaturamaJsonContext : JsonSerializerContext;

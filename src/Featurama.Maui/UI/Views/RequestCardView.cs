@@ -6,75 +6,112 @@ namespace Featurama.Maui.UI.Views;
 
 internal sealed class RequestCardView : ContentView
 {
-    public RequestCardView(FeaturamaTheme theme, FeaturamaStrings strings, FeatureRequest request, bool isVoting, Action onToggleVote)
+    public RequestCardView(FeaturamaTheme theme, FeaturamaStrings strings, FeatureRequest request,
+        bool isBusy, Func<Task> onToggleVote, Func<Task> onComments, Action<Exception> onError,
+        Func<Task>? onEdit = null)
     {
         var voteBtn = new Button
         {
-            Text = $"\u25B2\n{request.VoteCount}",
-            TextColor = theme.Accent,
-            BackgroundColor = theme.AccentLight,
+            Text = $"{(request.HasVoted ? "\u2713" : "\u25B2")}\n{request.VoteCount}",
+            TextColor = request.HasVoted ? theme.AccentForeground : theme.Accent,
+            BackgroundColor = request.HasVoted ? theme.Accent : theme.AccentLight,
             CornerRadius = 8,
             FontSize = 14,
             FontAttributes = FontAttributes.Bold,
-            WidthRequest = 52,
-            HeightRequest = 56,
-            IsEnabled = !isVoting,
+            WidthRequest = 56,
+            HeightRequest = 60,
+            IsEnabled = request.IsApproved && !isBusy,
             Padding = new Thickness(4),
+            VerticalOptions = LayoutOptions.Start,
         };
-        voteBtn.Clicked += (_, _) => onToggleVote();
+        SemanticProperties.SetDescription(voteBtn,
+            $"{(!request.IsApproved ? strings.Pending : request.HasVoted ? strings.RemoveVote : strings.Vote)}, {request.VoteCount}");
+        voteBtn.Clicked += async (_, _) =>
+        {
+            try { await onToggleVote(); }
+            catch (Exception ex) { onError(ex); }
+        };
 
-        var titleLabel = new Label
+        var content = new VerticalStackLayout { Spacing = 6 };
+        content.Children.Add(new Label
         {
             Text = request.Title,
             TextColor = theme.Text,
             FontSize = 16,
             FontAttributes = FontAttributes.Bold,
-        };
-
-        var titleRow = new HorizontalStackLayout
+            LineBreakMode = LineBreakMode.WordWrap,
+        });
+        if (!request.IsApproved || request.Status == FeatureRequestStatus.Roadmap)
         {
-            Spacing = 8,
-            Children = { titleLabel },
-        };
-
-        if (request.Status == FeatureRequestStatus.Roadmap)
-        {
-            var badge = new Border
+            content.Children.Add(new Label
             {
-                StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
-                BackgroundColor = theme.AccentLight,
-                StrokeThickness = 0,
-                Padding = new Thickness(8, 2),
-                VerticalOptions = LayoutOptions.Center,
-                Content = new Label
-                {
-                    Text = strings.BadgePlanned,
-                    TextColor = theme.Accent,
-                    FontSize = 11,
-                    FontAttributes = FontAttributes.Bold,
-                },
-            };
-            titleRow.Children.Add(badge);
+                Text = !request.IsApproved ? strings.Pending : strings.BadgePlanned,
+                TextColor = theme.Accent,
+                FontSize = 12,
+                FontAttributes = FontAttributes.Bold,
+            });
         }
-
-        var contentLayout = new VerticalStackLayout
-        {
-            Spacing = 4,
-            Children = { titleRow },
-        };
-
+        if (request.HasVoted)
+            content.Children.Add(new Label { Text = strings.Voted, TextColor = theme.Accent, FontSize = 12 });
         if (!string.IsNullOrEmpty(request.Description))
         {
-            contentLayout.Children.Add(new Label
+            content.Children.Add(new Label
             {
                 Text = request.Description,
                 TextColor = theme.TextSecondary,
                 FontSize = 13,
-                MaxLines = 2,
+                MaxLines = 3,
                 LineBreakMode = LineBreakMode.TailTruncation,
             });
         }
-
+        var comments = new Button
+        {
+            Text = $"{strings.Comments} ({request.CommentCount})",
+            TextColor = theme.Accent,
+            BackgroundColor = Colors.Transparent,
+            HorizontalOptions = LayoutOptions.Start,
+            Padding = new Thickness(0, 4),
+            FontSize = 13,
+            IsEnabled = !isBusy,
+        };
+        comments.Clicked += async (_, _) =>
+        {
+            comments.IsEnabled = false;
+            try { await onComments(); }
+            catch (Exception ex) { onError(ex); }
+            finally { comments.IsEnabled = !isBusy; }
+        };
+        content.Children.Add(comments);
+        // No edit control at all for requests not owned by this page's identity.
+        if (onEdit != null)
+        {
+            var edit = new Button
+            {
+                Text = strings.Edit,
+                TextColor = theme.Accent,
+                BackgroundColor = theme.AccentLight,
+                HorizontalOptions = LayoutOptions.Start,
+                FontSize = 13,
+                CornerRadius = 8,
+                IsEnabled = !isBusy,
+            };
+            SemanticProperties.SetDescription(edit, $"{strings.Edit}: {request.Title}");
+            edit.Clicked += async (_, _) =>
+            {
+                edit.IsEnabled = false;
+                try { await onEdit(); }
+                catch (Exception ex) { onError(ex); }
+                finally { edit.IsEnabled = !isBusy; }
+            };
+            content.Children.Add(edit);
+        }
+        var grid = new Grid
+        {
+            ColumnDefinitions = { new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Star) },
+            ColumnSpacing = 12,
+        };
+        grid.Add(voteBtn, 0);
+        grid.Add(content, 1);
         Content = new Border
         {
             StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 12 },
@@ -83,11 +120,7 @@ internal sealed class RequestCardView : ContentView
             StrokeThickness = 1,
             Padding = new Thickness(14),
             Margin = new Thickness(0, 0, 0, 12),
-            Content = new HorizontalStackLayout
-            {
-                Spacing = 12,
-                Children = { voteBtn, contentLayout },
-            },
+            Content = grid,
         };
     }
 }

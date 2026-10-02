@@ -1,0 +1,6 @@
+# Build output
+**/bin/
+**/obj/
+.hermes/
+.agents/
+skills-lock.json

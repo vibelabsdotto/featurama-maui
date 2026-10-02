@@ -5,6 +5,7 @@
              Title="Featurama Tester">
     <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="16" Padding="20">
         <Label Text="Tap below to open the Featurama UI" HorizontalTextAlignment="Center" />
+        <Label x:Name="StatusLabel" HorizontalTextAlignment="Center" FontSize="13" />
         <Button Text="Open Feature Requests" Clicked="OnOpenFeaturama" />
         <Button Text="Settings" Clicked="OnOpenSettings" />
     </VerticalStackLayout>

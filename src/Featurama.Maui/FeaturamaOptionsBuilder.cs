@@ -27,10 +27,7 @@ public sealed class FeaturamaOptionsBuilder
         if (string.IsNullOrWhiteSpace(_options.ApiKey))
             throw new ArgumentException("API key must not be empty.");
 
-        if (string.IsNullOrWhiteSpace(_options.BaseUrl))
-            throw new ArgumentException(
-                "Base URL must not be empty. Set it to your Convex deployment URL, e.g. \"https://your-deployment.convex.site\".");
-
+        _options.Validate();
         return _options;
     }
 }

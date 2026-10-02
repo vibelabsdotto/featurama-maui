@@ -1,4 +1,3 @@
-using Featurama.Maui.DependencyInjection;
 using FeaturamaTester.ViewModels;
 using FeaturamaTester.Views;
 
@@ -18,12 +17,9 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        // Register Featurama SDK via DI
-        builder.Services.AddFeaturama(opts =>
-        {
-            opts.ApiKey(Config.ApiKey)
-                .BaseUrl(Config.BaseUrl);
-        });
+        // The native SDK page uses the static facade. Config initializes that same
+        // client after secure settings load, and replaces it on every settings save.
+        // Do not register a second DI client with stale startup credentials.
 
         // Register ViewModels
         builder.Services.AddTransient<SettingsViewModel>();

@@ -6,13 +6,13 @@ internal sealed class BrandingView : ContentView
 {
     public BrandingView(FeaturamaTheme theme)
     {
-        var logoIcon = new Frame
+        var logoIcon = new Border
         {
             WidthRequest = 16,
             HeightRequest = 16,
-            CornerRadius = 4,
+            StrokeShape = new Microsoft.Maui.Controls.Shapes.RoundRectangle { CornerRadius = 4 },
+            StrokeThickness = 0,
             Padding = 0,
-            HasShadow = false,
             BackgroundColor = theme.Accent,
             Content = new Label
             {

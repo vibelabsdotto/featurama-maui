@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks>net10.0-android;net10.0-ios26.5;net10.0-maccatalyst26.5</TargetFrameworks>
     <OutputType>Exe</OutputType>
     <UseMaui>true</UseMaui>
     <SingleProject>true</SingleProject>
@@ -29,10 +29,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Maui.Controls" Version="9.0.111" />
-    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="9.0.111" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+    <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.110" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <ProjectReference Include="..\..\..\sdks\maui\src\Featurama.Maui\Featurama.Maui.csproj" />
+    <ProjectReference Include="..\..\src\Featurama.Maui\Featurama.Maui.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="bin/**;obj/**" />
+  </ItemGroup>
 </Project>
