@@ -100,6 +100,11 @@ Keep the installation identity stable across launches. If omitted, the page pers
 
 Only requests with a nonempty submitter identifier exactly matching the page identity show Edit. The prefilled form validates title and description, disables controls during saving, and keeps failed or cancelled-save drafts. A successful save keeps the current filter/page and reads server state back. List refreshes cannot erase an open draft. Cancel explicitly discards that draft. Server-side ownership checks remain authoritative; an installation identifier is not an authenticated account.
 
+### Store review links
+
+`ProjectConfig.ReviewLinks` exposes optional `AppStoreUrl` and `PlayStoreUrl`.
+Older servers omit the field. `FeaturamaPage` does not show these links.
+
 ### Permission-free metadata
 
 Native UI submissions and native `FeaturamaClient` create calls automatically collect platform, OS version, device model/manufacturer/type and app version/build using MAUI Essentials. No permissions are requested. The SDK does not automatically collect device name, advertising/vendor IDs, locale, display size or location. Unsupported getters are omitted and do not block feedback submission.
